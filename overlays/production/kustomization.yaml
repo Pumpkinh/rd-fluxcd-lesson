@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: production
+resources:
+  - ../../base/course-app
+  - postgresql-cluster.yaml
+  - hpa.yaml
+patches:
+  - path: replicas-and-resources.yaml
+  - path: ingress-host.yaml

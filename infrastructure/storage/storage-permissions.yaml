@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cnpg-storage-permissions
+  namespace: development
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      nodeSelector:
+        kubernetes.io/hostname: k8snode2
+      containers:
+        - name: chown-data
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /data
+              chown -R 26:26 /data
+              chmod 700 /data
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/lib/course-app/gitops-development-postgresql
+            type: DirectoryOrCreate
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cnpg-storage-permissions
+  namespace: production
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      nodeSelector:
+        kubernetes.io/hostname: k8snode2
+      containers:
+        - name: chown-data
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              for dir in /data-1 /data-2; do
+                mkdir -p "$dir"
+                chown -R 26:26 "$dir"
+                chmod 700 "$dir"
+              done
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: data-1
+              mountPath: /data-1
+            - name: data-2
+              mountPath: /data-2
+      volumes:
+        - name: data-1
+          hostPath:
+            path: /var/lib/course-app/gitops-production-postgresql-1
+            type: DirectoryOrCreate
+        - name: data-2
+          hostPath:
+            path: /var/lib/course-app/gitops-production-postgresql-2
+            type: DirectoryOrCreate
