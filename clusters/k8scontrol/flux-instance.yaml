@@ -1,0 +1,16 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    registry: ghcr.io/fluxcd
+    version: 2.x
+  sync:
+    kind: GitRepository
+    url: ssh://git@github.com/Pumpkinh/rd-fluxcd-lesson.git
+    ref: refs/heads/main
+    path: clusters/k8scontrol
+    pullSecret: rd-fluxcd-lesson-auth
+    interval: 1m
